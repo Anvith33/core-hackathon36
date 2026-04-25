@@ -79,6 +79,48 @@
 
   <div class="page-body">
 
+    <!-- ====== SMS PHISHING DETECTOR ====== -->
+    <div class="glass-card anim-up" id="smsScanCard" style="margin-bottom:1.5rem;border:1px solid rgba(124,58,237,0.2)">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.25rem">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(124,58,237,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+        </div>
+        <div>
+          <h2 style="font-family:var(--fhead);font-size:1.1rem;font-weight:800;color:var(--t1);margin-bottom:2px">SMS Phishing Detector</h2>
+          <p style="font-size:0.8rem;color:var(--t3)">Got a suspicious SMS? Paste the entire message — we'll auto-extract and scan every link inside it.</p>
+        </div>
+        <div class="chip chip-violet" style="margin-left:auto;flex-shrink:0">NEW</div>
+      </div>
+
+      <!-- Tab switcher -->
+      <div style="display:flex;gap:6px;margin-bottom:1.25rem;background:rgba(255,255,255,0.03);border-radius:10px;padding:4px">
+        <button id="tabPaste" onclick="switchSmsTab('paste')" style="flex:1;padding:8px;border-radius:8px;border:none;cursor:pointer;font-size:0.82rem;font-weight:700;background:rgba(124,58,237,0.25);color:#a78bfa;font-family:var(--fbody)">Paste SMS</button>
+        <button id="tabInbox" onclick="switchSmsTab('inbox')" style="flex:1;padding:8px;border-radius:8px;border:none;cursor:pointer;font-size:0.82rem;font-weight:700;background:transparent;color:var(--t3);font-family:var(--fbody)">Simulated Inbox</button>
+      </div>
+
+      <!-- Paste SMS tab -->
+      <div id="panePaste">
+        <textarea id="smsInput" rows="4"
+          style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;color:var(--t1);font-size:0.875rem;font-family:var(--fbody);padding:12px 14px;resize:vertical;outline:none;box-sizing:border-box;line-height:1.6"
+          placeholder="Paste the full SMS here... e.g.&#10;URGENT: Your SBI account is suspended. Verify now: http://sbi-secure-login.tk/verify?id=7829"></textarea>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+          <button class="btn btn-primary" onclick="scanSmsText()" style="flex:1">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8"/><path d="M1 1l22 22"/></svg>
+            Scan SMS Links
+          </button>
+          <button onclick="loadSmsDemo()" style="padding:10px 16px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--t2);font-size:0.82rem;font-weight:600;cursor:pointer;font-family:var(--fbody)">
+            Load Demo SMS
+          </button>
+        </div>
+        <div id="smsExtractResult" style="margin-top:1rem"></div>
+      </div>
+
+      <!-- Simulated Inbox tab -->
+      <div id="paneInbox" style="display:none">
+        <div style="display:flex;flex-direction:column;gap:8px" id="smsInboxList"></div>
+      </div>
+    </div>
+
     <!-- Scan Input -->
     <div class="glass-card url-scan-card anim-up">
       <div style="margin-bottom:1.5rem">
