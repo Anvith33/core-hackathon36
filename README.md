@@ -1,6 +1,6 @@
 # FraudShield
 
-## 📌 Problem Statement: Fraud Shield for First-Time Digital Users
+##  Problem Statement: Fraud Shield for First-Time Digital Users
 
 ### Problem
 First-time digital users are highly vulnerable to scams, phishing, and fraudulent transactions.
@@ -16,12 +16,12 @@ Increase trust in digital financial systems and protect new users from fraud.
 
 ---
 
-## 🚀 Overview
+##  Overview
 **FraudShield** is a comprehensive, real-time protection platform designed specifically for new digital payment users. It actively monitors, flags, and prevents potentially fraudulent transactions before they happen. By combining an intuitive user interface, a fast rule-based risk analysis engine, and gamified user education, it ensures a safe and secure environment for modern digital transactions.
 
 ---
 
-## 🛠️ Technical Specifications
+##  Technical Specifications
 
 ### Tech Stack
 - **Frontend**: Vanilla HTML5, CSS3, and JavaScript. Designed with a mobile-first, full-bleed professional UI approach.
@@ -57,7 +57,7 @@ The system performs instant background checks on transaction payloads via the `/
 
 ---
 
-## 💻 Running the Application
+##  Running the Application
 
 ### 1. Start the Backend Server
 Navigate to the `backend/` directory and run the FastAPI server:
