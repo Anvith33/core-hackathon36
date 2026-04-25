@@ -217,10 +217,23 @@
 </main>
 </div>
 
-<script src="js/app.js"></script>
-<script src="js/icons.js"></script>
-<script src="js/models.js"></script>
-<script src="js/fraud-engine.js"></script>
-<script src="js/checker.js"></script>
+<script src="js/app.js?v=2"></script>
+<script src="js/icons.js?v=2"></script>
+<script src="js/models.js?v=2"></script>
+<script src="js/fraud-engine.js?v=2"></script>
+<script src="js/checker.js?v=3"></script>
+<script>
+  // Failsafe: wire SMS buttons after all scripts load
+  window.addEventListener('load', function() {
+    var btnScan   = document.querySelector('[onclick="scanSmsText()"]');
+    var btnDemo   = document.querySelector('[onclick="loadSmsDemo()"]');
+    var tabPaste  = document.getElementById('tabPaste');
+    var tabInbox  = document.getElementById('tabInbox');
+    if (btnScan)  { btnScan.removeAttribute('onclick');  btnScan.addEventListener('click', function(){ if(typeof scanSmsText==='function') scanSmsText(); else window.scanSmsText && window.scanSmsText(); }); }
+    if (btnDemo)  { btnDemo.removeAttribute('onclick');  btnDemo.addEventListener('click', function(){ if(typeof loadSmsDemo==='function') loadSmsDemo();  else window.loadSmsDemo  && window.loadSmsDemo();  }); }
+    if (tabPaste) { tabPaste.removeAttribute('onclick'); tabPaste.addEventListener('click', function(){ if(typeof switchSmsTab==='function') switchSmsTab('paste'); }); }
+    if (tabInbox) { tabInbox.removeAttribute('onclick'); tabInbox.addEventListener('click', function(){ if(typeof switchSmsTab==='function') switchSmsTab('inbox'); }); }
+  });
+</script>
 </body>
 </html>

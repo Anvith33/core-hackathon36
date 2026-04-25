@@ -2,7 +2,7 @@
    FraudShield – checker.js  v2 (SVG icons, no emojis)
    ==================================================== */
 
-let scanHistory = Store ? Store.get('urlChecks', []) : [];
+let scanHistory = (typeof Store !== 'undefined' && Store) ? Store.get('urlChecks', []) : [];
 
 function onUrlInput() {
   const val = document.getElementById('urlInput')?.value || '';
@@ -408,6 +408,15 @@ function loadInboxSms(index) {
     smsInput.scrollIntoView({ behavior: 'smooth' });
   }
 }
+
+// ============================================================
+//  Expose SMS functions to global scope for onclick attributes
+// ============================================================
+window.switchSmsTab  = switchSmsTab;
+window.scanSmsText   = scanSmsText;
+window.loadSmsDemo   = loadSmsDemo;
+window.loadInboxSms  = loadInboxSms;
+window.renderSmsInbox = renderSmsInbox;
 
 // ============================================================
 //  Init
