@@ -113,6 +113,18 @@
     const switchAuth = document.querySelector('.switch-auth');
     const nameField = document.getElementById('fullname').parentElement.parentElement;
 
+    // Check if user is already logged in
+    if (localStorage.getItem('fraudshield_user')) {
+      window.location.href = 'dashboard.html';
+    }
+
+    // Handle ?mode=signin or ?mode=signup from landing page
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('mode') === 'signin') {
+      isLogin = true;
+      toggleAuth();
+    }
+
     function toggleAuth() {
       isLogin = !isLogin;
       if (isLogin) {
@@ -130,44 +142,71 @@
       }
     }
 
-    authForm.onsubmit = async (e) => {
+    authForm.onsubmit = (e) => {
       e.preventDefault();
-      const email = document.getElementById('email').value;
+      const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
-      const fullname = document.getElementById('fullname').value;
+      const fullname = document.getElementById('fullname').value.trim();
 
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-      const body = { username: email, password, fullName: fullname };
+      if (!email || !password) {
+        showToast('Please fill in all fields.', 'danger');
+        return;
+      }
 
-      submitBtn.innerText = isLogin ? "Signing in..." : "Creating account...";
       submitBtn.disabled = true;
+      submitBtn.innerText = isLogin ? "Signing in..." : "Creating account...";
 
-      try {
-        const res = await fetch(`http://127.0.0.1:5001${endpoint}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
-        });
-        const data = await res.json();
-
-        if (data.success) {
-          if (isLogin) {
-            localStorage.setItem('fraudshield_user', JSON.stringify(data.user));
-            window.location.href = 'dashboard.html';
+      // Simulate a brief loading delay for UX
+      setTimeout(() => {
+        if (isLogin) {
+          // --- Sign In ---
+          const storedUsers = JSON.parse(localStorage.getItem('fraudshield_users') || '[]');
+          const user = storedUsers.find(u => u.email === email && u.password === password);
+          if (user) {
+            localStorage.setItem('fraudshield_user', JSON.stringify({
+              name: user.name,
+              email: user.email,
+              initials: user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+            }));
+            showToast(`Welcome back, ${user.name}!`, 'success');
+            setTimeout(() => { window.location.href = 'dashboard.html'; }, 600);
           } else {
-            showToast('Account Created! Please Sign In.', 'success');
-            toggleAuth();
+            showToast('Invalid email or password.', 'danger');
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Sign In";
           }
         } else {
-          showToast(data.message, 'danger');
+          // --- Sign Up ---
+          if (!fullname) {
+            showToast('Please enter your full name.', 'danger');
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Create Account";
+            return;
+          }
+          const storedUsers = JSON.parse(localStorage.getItem('fraudshield_users') || '[]');
+          if (storedUsers.find(u => u.email === email)) {
+            showToast('An account with this email already exists. Please sign in.', 'danger');
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Create Account";
+            return;
+          }
+          storedUsers.push({ name: fullname, email, password });
+          localStorage.setItem('fraudshield_users', JSON.stringify(storedUsers));
+          showToast('Account created! Please sign in.', 'success');
+          // Auto-switch to sign in mode
+          isLogin = false; // toggleAuth will flip this
+          toggleAuth();
+          document.getElementById('email').value = email;
+          submitBtn.disabled = false;
         }
-      } catch (err) {
-        showToast('Backend Error: Make sure Python server is running.', 'danger');
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerText = isLogin ? "Sign In" : "Create Account";
-      }
+      }, 500);
     };
+
+    // Initial state: if mode was signin, toggleAuth already ran above
+    // If mode was signup or default, show signup form (default state)
+    if (urlParams.get('mode') === 'signin') {
+      // Already handled above
+    }
   </script>
 </body>
 </html>

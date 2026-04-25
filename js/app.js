@@ -3,6 +3,17 @@
    Shared utilities: sidebar, modals, toasts, data helpers
    ==================================================== */
 
+// ---- Global Session Guard ----
+(function() {
+  const path = window.location.pathname;
+  if (!path.endsWith('login.html') && !path.endsWith('index.html') && path !== '/' && !path.endsWith('/core-hackathon36/')) {
+    const user = localStorage.getItem('fraudshield_user');
+    if (!user) {
+      window.location.href = 'login.html';
+    }
+  }
+})();
+
 // ---- Sidebar Toggle ----
 function toggleSidebar() {
   const s = document.getElementById('sidebar');

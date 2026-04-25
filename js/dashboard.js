@@ -4,20 +4,19 @@
 
 // ---- Session Check ----
 const currentUser = JSON.parse(localStorage.getItem('fraudshield_user'));
-if (!currentUser && !window.location.href.includes('index.html')) {
-  // Silence redirect if not logged in
-  // window.location.href = 'login.html'; 
+if (!currentUser) {
+  window.location.href = 'login.html';
 }
 
 function updateUserInfo() {
   if (!currentUser) return;
-  const nameEl = document.getElementById('sidebarName');
-  const avatarEl = document.getElementById('sidebarAvatar');
-  if (nameEl) nameEl.textContent = currentUser.fullName;
+  const nameEl = document.querySelector('.user-name');
+  const avatarEl = document.querySelector('.user-avatar');
+  if (nameEl) nameEl.textContent = currentUser.name || 'User';
   if (avatarEl) {
-    const initials = currentUser.fullName.split(' ').map(n => n[0]).join('').toUpperCase();
-    avatarEl.textContent = initials.substring(0, 2);
+    avatarEl.textContent = currentUser.initials || currentUser.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'U';
   }
+
 }
 
 document.addEventListener('DOMContentLoaded', updateUserInfo);
