@@ -1,5 +1,8 @@
 /* ====================================================
-   FraudShield – dashboard.js  v2 (SVG icons, no emojis)
+   FraudShield – dashboard.js v3.1
+   All logic runs INSIDE DOMContentLoaded so that
+   auth.js is guaranteed to have loaded before we
+   try to read the session.
    ==================================================== */
 
 // ---- Session Check ----
@@ -40,142 +43,114 @@ const SVG_ICONS = {
   warn: `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
 };
 
-function renderTransactions() {
-  const list = document.getElementById('txnList');
+    updateScoreUI(d.safetyScore || 0);
+
+    // Alert badge
+    const badge = el('alertBadge');
+    if (badge) {
+      const n = d.scannedTotal || 0;
+      badge.textContent = n;
+      badge.style.display = n > 0 ? 'flex' : 'none';
+    }
+  } catch (err) {
+    console.error('fetchStats error:', err);
+    const level = el('safetyLevel');
+    if (level) level.innerHTML = `<span style="color:var(--crimson-lt)">Backend Error — refresh page</span>`;
+  }
+}
+
+// ── Activity list ────────────────────────────────────────────────
+function renderActivity(txns) {
+  const list = el('txnList');
   if (!list) return;
-
-  const localTxns = Store.get('transactions', []);
-  const allTxns = [...localTxns, ...TRANSACTIONS].slice(0, 10);
-
-  list.innerHTML = allTxns.map(t => `
-    <div class="txn-row" id="txn_${t.id}">
-      <div class="txn-avatar" style="background:${t.color}">${t.init}</div>
+  if (!txns.length) {
+    list.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--t3);font-size:0.875rem">No transactions yet. Send money to see activity!</div>`;
+    return;
+  }
+  list.innerHTML = txns.map(t => {
+    const isSafe  = t.status === 'safe';
+    const isWarn  = t.status === 'warn';
+    const color   = t.status === 'blocked' ? '#ef4444' : isWarn ? '#f59e0b' : '#10b981';
+    const init    = (t.recipient_name || '??').substring(0,2).toUpperCase();
+    const ago     = typeof timeAgo === 'function' ? timeAgo(t.timestamp) : t.timestamp;
+    const amount  = typeof formatCurrency === 'function' ? formatCurrency(t.amount) : '₹'+t.amount;
+    return `
+    <div class="txn-row">
+      <div class="txn-avatar" style="background:${color}">${init}</div>
       <div class="txn-info">
-        <div class="txn-name">${t.name}</div>
-        <div class="txn-sub">${t.upi} · ${timeAgo(t.time)}</div>
+        <div class="txn-name">${t.recipient_name || t.upi_id}</div>
+        <div class="txn-sub">${t.upi_id} · ${ago}</div>
       </div>
       <div class="txn-right">
-        <div class="txn-amount ${t.type}">${t.type==='debit'?'-':'+'}${formatCurrency(t.amount)}</div>
-        <div class="txn-badge ${t.status==='safe'?'tb-safe':t.status==='warn'?'tb-warn':'tb-blocked'}">
-          ${t.status==='safe'
-            ? SVG_ICONS.check + ' Safe'
-            : t.status==='warn'
-              ? SVG_ICONS.warn + ' Review'
-              : SVG_ICONS.shield + ' Blocked'
-          }
+        <div class="txn-amount debit">-${amount}</div>
+        <div class="txn-badge ${isSafe?'tb-safe':isWarn?'tb-warn':'tb-blocked'}">
+          ${isSafe ? SVG.check+' Safe' : isWarn ? SVG.warn+' Review' : SVG.block+' Blocked'}
         </div>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
-function renderAlerts() {
-  const list = document.getElementById('alertList');
+async function fetchActivity(userId) {
+  try {
+    const res = await fetch(`${API_BASE}/transactions?user_id=${userId}&cb=${Date.now()}`);
+    const txns = await res.json();
+    renderActivity(txns);
+  } catch (err) { console.warn('fetchActivity:', err); }
+}
+
+// ── Alerts list ────────────────────────────────────────────────
+function renderAlerts(alerts) {
+  const list = el('alertList');
   if (!list) return;
-  list.innerHTML = ALERTS_DATA.map(a => `
-    <div class="alert-row ${a.level}" id="alert_${a.id}" onclick="window.location='alerts.html'" style="cursor:pointer">
-      <div class="alert-row-icon ai-${a.level}">${SVG_ICONS[a.iconType]}</div>
+  if (!alerts.length) {
+    list.innerHTML = `<div style="text-align:center;padding:1rem;color:var(--t3);font-size:0.82rem">No risk alerts found.</div>`;
+    return;
+  }
+  const ago = typeof timeAgo === 'function' ? timeAgo : s => s;
+  list.innerHTML = alerts.slice(0, 5).map(a => `
+    <div class="alert-row ${a.type}" onclick="window.location='alerts.html'" style="cursor:pointer">
+      <div class="alert-row-icon ai-${a.type}">${a.type==='critical'?SVG.shieldAlert:SVG.alertTri}</div>
       <div>
         <div class="alert-row-title">${a.title}</div>
-        <div class="alert-row-desc">${a.desc.substring(0,75)}…</div>
-        <div class="alert-row-time">${timeAgo(a.time)}</div>
+        <div class="alert-row-desc">${(a.message||'').substring(0,60)}…</div>
+        <div class="alert-row-time">${ago(a.timestamp)}</div>
       </div>
     </div>
   `).join('');
 }
 
-function renderNotifications() {
-  const list = document.getElementById('notifList');
-  if (!list) return;
-  const levelColors = { critical:'si-crimson', warning:'si-amber', success:'si-emerald' };
-  list.innerHTML = NOTIFICATIONS_DATA.map(n => `
-    <div class="notif-item">
-      <div class="notif-item-icon ${levelColors[n.level]||'si-violet'}">${SVG_ICONS[n.iconType]}</div>
-      <div>
-        <div class="notif-body-title">${n.title}</div>
-        <div class="notif-body-text">${n.body}</div>
-        <div class="notif-time">${n.time}</div>
-      </div>
-    </div>
-  `).join('');
+async function fetchAlerts(userId) {
+  try {
+    const res = await fetch(`${API_BASE}/alerts?user_id=${userId}&cb=${Date.now()}`);
+    const alerts = await res.json();
+    renderAlerts(alerts);
+  } catch (err) { console.warn('fetchAlerts:', err); }
 }
 
-function renderRadar() {
-  const grid = document.getElementById('radarGrid');
-  if (!grid) return;
-  grid.innerHTML = RADAR_DATA.map((r,i) => `
-    <div class="radar-item" id="ri${i}">
-      <div class="radar-label">${r.label}</div>
-      <div class="bar-track">
-        <div class="bar-fill" id="rf${i}" style="width:0%;background:${r.color}"></div>
-      </div>
-      <div class="radar-pct" style="color:${r.color}">${r.pct}%</div>
-    </div>
-  `).join('');
-  setTimeout(() => RADAR_DATA.forEach((r,i) => {
-    const b = document.getElementById('rf'+i);
-    if (b) b.style.width = r.pct + '%';
-  }), 300);
-}
-
-function animateSafetyScore(score) {
-  const circle = document.getElementById('scoreRingCircle');
-  if (!circle) return;
-  const circumference = 2 * Math.PI * 56; // ~351.86
-  const offset = circumference - (circumference * score / 100);
-  setTimeout(() => {
-    circle.style.transition = 'stroke-dashoffset 1.5s cubic-bezier(0.4,0,0.2,1)';
-    circle.setAttribute('stroke-dashoffset', offset);
-
-    const level = document.getElementById('safetyLevel');
-    const tip   = document.getElementById('safetyTip');
-
-    if (score >= 85) {
-      if (level) { level.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg> <span style="color:var(--emerald-lt)">Low Risk — Well Protected</span>`; }
-      if (tip)   tip.textContent = 'Great job! Your account security is strong.';
-    } else if (score >= 65) {
-      if (level) { level.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> <span style="color:var(--amber-lt)">Moderate Risk</span>`; }
-      if (tip)   tip.textContent = 'Complete your profile verification to boost your score!';
-    } else {
-      if (level) { level.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> <span style="color:var(--crimson-lt)">High Risk — Take Action</span>`; }
-      if (tip)   tip.textContent = 'Review your security alerts immediately!';
-    }
-
-    animateCount(document.getElementById('safetyScore'), score);
-    animateCount(document.getElementById('ringScorelabel'), score, '%');
-  }, 400);
-}
-
-function simulateLiveAlert() {
-  setTimeout(() => {
-    showToast('New alert: Suspicious transaction pattern detected!', 'danger', 5001);
-    const b = document.getElementById('alertBadge');
-    const n = document.getElementById('notifBadge');
-    if (b) b.textContent = '4';
-    if (n) n.textContent = '4';
-  }, 9000);
-}
-
+// ── MAIN INIT — inside DOMContentLoaded so auth.js is ready ───────
 document.addEventListener('DOMContentLoaded', () => {
-  const localTxns = Store.get('transactions', []);
-  const blockedTxns = localTxns.filter(t => t.status === 'blocked');
-  const safeTxns = localTxns.filter(t => t.status === 'safe');
-  const totalSaved = blockedTxns.reduce((sum, t) => sum + t.amount, 47500); // 47500 is base mock
+  // Read session HERE (not at file top) so auth.js is already parsed
+  const user = (typeof getSession === 'function')
+    ? getSession()
+    : JSON.parse(localStorage.getItem('fraudshield_session') || 'null');
 
-  renderTransactions();
-  renderAlerts();
-  renderNotifications();
-  renderRadar();
+  if (!user) {
+    console.warn('Dashboard: no session — redirecting to login');
+    // Let auth.js handle the redirect
+    return;
+  }
 
-  const finalScore = Store.getSafetyScore();
-  animateSafetyScore(finalScore);
+  console.log(`Dashboard: user=${user.fullName} id=${user.id}`);
 
-  simulateLiveAlert();
+  // Load all data
+  fetchStats(user.id);
+  fetchActivity(user.id);
+  fetchAlerts(user.id);
 
-  setTimeout(() => {
-    animateCount(document.getElementById('statBlockedVal'), 12 + blockedTxns.length);
-    animateCount(document.getElementById('statSavedVal'), totalSaved);
-    animateCount(document.getElementById('statTxnVal'), 47 + safeTxns.length);
-    animateCount(document.getElementById('statAlertsVal'), 3 + localTxns.filter(t => t.status === 'warn').length);
-  }, 600);
+  // Refresh every 30 seconds for "live monitoring"
+  setInterval(() => {
+    fetchStats(user.id);
+    fetchActivity(user.id);
+  }, 30000);
 });

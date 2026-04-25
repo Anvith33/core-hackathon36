@@ -3,7 +3,10 @@
    ==================================================== */
 
 let currentRiskScore = 0;
-let currentAnalysis = null;
+let currentAnalysis  = null;
+
+// Central store — populated when user clicks Analyze, read by cancel/proceed
+let _pendingTxn = { upi: '', amount: 0, name: '', purpose: 'p2p' };
 
 // ---- Live UPI Check ----
 function liveUpiCheck(value) {
@@ -94,12 +97,12 @@ function updateRiskMeter() {
   }
 }
 
-// ---- Analyze Transaction ----
-function analyzeTxn(e) {
-  e.preventDefault();
+// ---- Analyze Transaction (Fast Backend AI Model) ----
+async function analyzeTxn(e) {
+  if (e) e.preventDefault();
 
-  const upi = document.getElementById('upiId')?.value?.trim();
-  const amount = document.getElementById('amount')?.value;
+  const upi     = document.getElementById('upiId')?.value?.trim();
+  const amount  = document.getElementById('amount')?.value;
   const purpose = document.getElementById('txnPurpose')?.value;
   const recipientName = document.getElementById('recipientName')?.value?.trim();
 
@@ -108,13 +111,39 @@ function analyzeTxn(e) {
     return;
   }
 
-  const analysis = FraudEngine.analyzeTransaction({ upiId: upi, amount, purpose, recipientName });
-  currentAnalysis = analysis;
+  // ★ Store for later use by cancel / proceed
+  _pendingTxn = { upi, amount: Number(amount), name: recipientName || upi, purpose };
 
-  if (analysis.riskScore >= 35) {
-    showFraudWarning(analysis, { upi, amount, purpose, recipientName });
-  } else {
-    proceedSafely({ upi, amount, recipientName });
+  const analysisBtn = document.querySelector('form button.btn-primary');
+  const originalText = analysisBtn ? analysisBtn.innerHTML : 'Analyze & Proceed';
+  if (analysisBtn) {
+    analysisBtn.disabled = true;
+    analysisBtn.innerHTML = `<span class="loader-sm"></span> Syncing with AI Model...`;
+  }
+
+  try {
+    const res = await fetch('http://localhost:5001/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ upi, amount, purpose })
+    });
+    if (!res.ok) throw new Error('Analysis server error');
+    const analysis = await res.json();
+    currentAnalysis = analysis;
+
+    if (analysis.riskScore >= 35) {
+      showFraudWarning(analysis, { upi, amount, purpose, recipientName });
+    } else {
+      proceedSafely({ upi, amount, recipientName }, false);
+    }
+  } catch (err) {
+    console.error('Backend Analysis Failed:', err);
+    showToast('Fast Analysis Backend is currently offline.', 'danger');
+  } finally {
+    if (analysisBtn) {
+      analysisBtn.disabled = false;
+      analysisBtn.innerHTML = originalText;
+    }
   }
 }
 
@@ -129,16 +158,16 @@ function showFraudWarning(analysis, data) {
 
   if (icon) {
     icon.innerHTML = analysis.riskScore >= 70 ? Icons.render('shieldAlert', 48) : Icons.render('alertTriangle', 48);
-    icon.style.color = analysis.color;
+    icon.style.color = analysis.color || 'var(--crimson)';
   }
   if (title) {
-    title.textContent = analysis.riskScore >= 70 ? 'High Fraud Risk Detected!' : 'Caution — Risk Detected';
-    title.style.color = analysis.color;
+    title.textContent = analysis.label || 'Risk Detected';
+    title.style.color = analysis.color || 'var(--crimson)';
   }
-  if (subtitle) subtitle.textContent = `Potential scam detected. Score: ${analysis.riskScore}/100`;
+  if (subtitle) subtitle.textContent = `Backend AI Model Score: ${analysis.riskScore}/100`;
 
   if (breakdown) {
-    breakdown.innerHTML = analysis.risks.map(r => `
+    breakdown.innerHTML = (analysis.risks || []).map(r => `
       <div class="risk-item ${r.level}">
         <span style="flex-shrink:0">${r.level === 'danger' ? Icons.render('shieldAlert', 15) : r.level === 'warn' ? Icons.render('alertTriangle', 15) : Icons.render('checkCircle', 15)}</span>
         <span>${r.text}</span>
@@ -159,28 +188,43 @@ function showFraudWarning(analysis, data) {
   openModal('fraudModal');
 }
 
-// ---- Cancel Transaction ----
-function cancelTransaction() {
-  const upi = document.getElementById('upiId')?.value?.trim();
-  const amount = document.getElementById('amount')?.value || 0;
-  const name = document.getElementById('recipientName')?.value?.trim() || upi;
+// ---- Cancel Transaction (Block) ----
+async function cancelTransaction() {
+  // Use _pendingTxn which was stored at analyze-time
+  const { upi, amount, name, purpose } = _pendingTxn;
+  const riskScore = currentAnalysis ? currentAnalysis.riskScore : 50;
 
-  // Record as blocked transaction for "Money Saved" stat
-  const txn = {
-    id: genId('TXN'),
-    name: name,
-    upi: upi,
-    amount: Number(amount),
-    type: 'debit',
-    status: 'blocked',
-    time: new Date().toISOString(),
-    init: name.substring(0, 2).toUpperCase(),
-    color: '#dc2626'
-  };
-  Store.push('transactions', txn);
+  const session = (typeof getSession === 'function') ? getSession() : JSON.parse(localStorage.getItem('fraudshield_session'));
+  if (session) {
+    try {
+      // 1. Save the blocked transaction
+      await fetch('http://localhost:5001/api/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: session.id,
+          name, upi,
+          amount: Number(amount),
+          purpose, risk_score: riskScore,
+          status: 'blocked'
+        })
+      });
+      // 2. Create threat alert
+      await fetch('http://localhost:5001/api/alerts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: session.id,
+          type: riskScore >= 70 ? 'critical' : 'warning',
+          title: 'Threat Blocked — Payment Cancelled',
+          message: `You blocked a risky payment of ₹${amount} to ${upi}. Risk score: ${riskScore}%.`
+        })
+      });
+    } catch (err) { console.error('cancelTransaction backend error:', err); }
+  }
 
   closeModal('fraudModal');
-  showToast('✅ Transaction cancelled — you stayed safe!', 'success');
+  showToast('✅ Transaction blocked — threat recorded!', 'success');
   resetForm();
 }
 
@@ -195,101 +239,127 @@ function proceedAnyway() {
 
 // ---- Build UPI Deep Link ----
 function buildUpiLink({ upi, amount, recipientName, purpose }) {
-  // NOTE: We do NOT use URLSearchParams because it encodes '@' as '%40'
-  // and spaces as '+', which many UPI apps reject.
   const name = (recipientName || 'Recipient').replace(/&/g, 'and').replace(/[#?=%]/g, '');
   const amt = Number(amount);
-  // Use integer if whole number, otherwise 2 decimal places
   const amtStr = amt % 1 === 0 ? amt.toString() : amt.toFixed(2);
-
-  // Keep transaction note simple — avoid special characters
   const note = 'Payment via FraudShield';
-
-  // Build manually — only essential params (pa, pn, am, cu)
-  // Do NOT include 'mode' — it can restrict payment on some apps
   return `upi://pay?pa=${upi}&pn=${encodeURIComponent(name)}&am=${amtStr}&cu=INR&tn=${encodeURIComponent(note)}`;
 }
 
-
-
-// ---- Open UPI App ----
+// ---- Open UPI App (MOCK) ----
 function openUpiApp(upiLink) {
-  // Try to open the UPI intent link
-  const isAndroid = /android/i.test(navigator.userAgent);
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const isMobile = isAndroid || isIOS || /mobile/i.test(navigator.userAgent);
+  const upi = document.getElementById('upiId')?.value?.trim();
+  const amount = document.getElementById('amount')?.value || 0;
+  const name = document.getElementById('recipientName')?.value?.trim() || upi;
 
-  if (isMobile) {
-    window.location.href = upiLink;
-  } else {
-    // On desktop, show a helpful message
-    showToast('UPI payment links work on mobile devices. Open this page on your phone to pay via UPI app.', 'info', 5000);
-  }
+  // Update Mock UI
+  document.getElementById('mockName').textContent = name;
+  document.getElementById('mockId').textContent = upi;
+  document.getElementById('mockAmount').textContent = Number(amount).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+  document.getElementById('mockPayBtnVal').textContent = Number(amount).toLocaleString('en-IN');
+  document.getElementById('mockAvatar').textContent = name.substring(0,1).toUpperCase();
+
+  closeModal('successModal');
+  openModal('upiCheckoutModal');
+}
+
+async function simulatePayment(btn) {
+  const loader  = document.getElementById('paymentLoader');
+  const success = document.getElementById('paymentSuccessAnim');
+  
+  if (loader)  loader.style.display  = 'block';
+  if (success) success.style.display = 'none';
+  btn.disabled = true;
+  btn.innerHTML = `<span class="loader-sm"></span> Processing...`;
+  openModal('paymentOverlay');
+  
+  setTimeout(() => {
+    if (loader)  loader.style.display  = 'none';
+    if (success) success.style.display = 'block';
+    const name = _pendingTxn.name || document.getElementById('recipientName')?.value || 'Recipient';
+    const finalMsg = document.getElementById('finalSuccessMsg');
+    if (finalMsg) finalMsg.textContent = `Sent safely to ${name}`;
+    // No extra alert creation here — the transaction save in proceedSafely already handles it
+  }, 2000);
 }
 
 // ---- Proceed Safely ----
-function proceedSafely({ upi, amount, recipientName }, withWarning = false) {
+async function proceedSafely({ upi, amount, recipientName }, withWarning = false) {
   const name = recipientName || upi;
   const purpose = document.getElementById('txnPurpose')?.value || '';
+  const score = currentAnalysis ? currentAnalysis.riskScore : 0;
 
-  // Build UPI deep link
   const upiLink = buildUpiLink({ upi, amount, recipientName: name, purpose });
-
-  // Store the link globally so the modal button can access it
   window._lastUpiLink = upiLink;
 
-  // Update success modal content
   const successDetails = document.getElementById('successDetails');
+  const successStatus = document.querySelector('#successModal p');
+  
+  if (successStatus) {
+    if (withWarning) {
+      successStatus.innerHTML = `⚠️ Risk detected — Proceeding per user request`;
+      successStatus.style.color = 'var(--amber-lt)';
+    } else {
+      successStatus.innerHTML = `✓ FraudShield analysis complete — Safe to pay`;
+      successStatus.style.color = 'var(--emerald-lt)';
+    }
+  }
+
   if (successDetails) {
     successDetails.innerHTML = `
-      <div style="text-align:left;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--r-md);padding:1rem;margin-bottom:0.5rem">
+      <div style="text-align:left;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:0.5rem">
         <div style="display:flex;justify-content:space-between;margin-bottom:8px">
           <span style="font-size:0.75rem;color:var(--t3)">To</span>
           <span style="font-size:0.85rem;font-weight:700;color:var(--t1)">${name}</span>
         </div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-          <span style="font-size:0.75rem;color:var(--t3)">UPI ID</span>
-          <span style="font-size:0.82rem;font-weight:600;color:var(--violet-lt);font-family:var(--fmono)">${upi}</span>
-        </div>
         <div style="display:flex;justify-content:space-between">
           <span style="font-size:0.75rem;color:var(--t3)">Amount</span>
-          <span style="font-size:1rem;font-weight:800;color:var(--emerald-lt)">${formatCurrency(amount)}</span>
+          <span style="font-size:1rem;font-weight:800;color:${withWarning ? 'var(--amber-lt)' : 'var(--emerald-lt)'}">${formatCurrency(amount)}</span>
         </div>
       </div>
     `;
   }
 
-  // Record transaction
-  const txn = {
-    id: genId('TXN'),
-    name: name,
-    upi: upi,
-    amount: Number(amount),
-    type: 'debit',
-    status: withWarning ? 'warn' : 'safe',
-    time: new Date().toISOString(),
-    init: name.substring(0, 2).toUpperCase(),
-    color: withWarning ? '#fbbf24' : '#7c3aed'
-  };
+  // Record to backend
+  const API_BASE = 'http://localhost:5001/api';
+  const session = getSession();
+  
+  if (session) {
+    try {
+      const riskScore = currentAnalysis ? currentAnalysis.riskScore : 0;
+      const res = await fetch(`${API_BASE}/transactions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: session.id,
+          name: name,
+          upi: upi,
+          amount: Number(amount),
+          purpose: purpose,
+          risk_score: riskScore,
+          status: withWarning ? 'warn' : 'safe'
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(`Transaction recorded — protection active`, 'success');
+      } else {
+        console.error('Backend rejected txn:', data.error);
+        showToast('System delay: Transaction not linked to history.', 'warning');
+      }
+    } catch (err) { 
+      console.error('Backend sync failed:', err); 
+      showToast('Offline mode: Transaction not saved to history.', 'danger');
+    }
+  }
 
-  Store.push('transactions', txn);
-  FraudEngine.addKnownPayee(upi);
-
-  const refId = txn.id;
-  showToast(`Transaction ${refId} verified — opening UPI app...`, withWarning ? 'warning' : 'success');
   openModal('successModal');
-
-  // Auto-open UPI app after a short delay
-  setTimeout(() => {
-    openUpiApp(upiLink);
-  }, 800);
 }
 
 // ---- Reset Form ----
 function resetForm() {
   document.getElementById('transferForm')?.reset();
   document.getElementById('upiStatus').textContent = '';
-  document.getElementById('upiHint').textContent = '';
   document.getElementById('amountWarning').textContent = '';
   document.getElementById('purposeWarning').textContent = '';
   document.getElementById('riskFill').style.width = '0%';
@@ -299,7 +369,6 @@ function resetForm() {
 
 // ---- Init ----
 document.addEventListener('DOMContentLoaded', () => {
-  // Set min date for form
   const upiInput = document.getElementById('upiId');
   if (upiInput) upiInput.focus();
 });

@@ -166,6 +166,19 @@ function genId(prefix = 'ID') {
   return prefix + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();
 }
 
+// ---- Backend Alert Helper ----
+async function createBackendAlert({ type, title, message }) {
+  try {
+    const session = typeof getSession === 'function' ? getSession() : JSON.parse(localStorage.getItem('fraudshield_session'));
+    if (!session) return;
+    await fetch('http://localhost:5001/api/alerts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: session.id, type, title, message })
+    });
+  } catch (err) { console.error('Alert persistence failed'); }
+}
+
 // ---- Relative Time ----
 function timeAgo(date) {
   const diff = Date.now() - new Date(date).getTime();

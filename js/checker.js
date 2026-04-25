@@ -102,9 +102,21 @@ function displayResult(url, analysis) {
   } else if (analysis.score < 60) {
     level = 'warning'; verdictText = 'Proceed with Caution'; verdictColor = 'var(--amber-lt)';
     showToast('Caution: Suspicious link detected', 'warning');
+    // Save backend alert
+    createBackendAlert({
+      type: 'warning',
+      title: 'Suspicious URL Scanned',
+      message: `Checked URL: ${url}. Identified as moderate risk. Avoid sharing sensitive info on this site.`
+    });
   } else {
     level = 'danger'; verdictText = 'High Risk — Do Not Click!'; verdictColor = 'var(--crimson-lt)';
     showToast('DANGER: Phishing link detected!', 'danger', 5001);
+    // Save backend alert
+    createBackendAlert({
+      type: 'critical',
+      title: 'Phishing URL Intercepted',
+      message: `High-risk phishing link detected: ${url}. We recommend blocking this sender immediately.`
+    });
   }
 
   const iconSvg = level === 'safe'
@@ -209,62 +221,6 @@ function clearHistory() {
 //  SMS PHISHING DETECTOR
 // ============================================================
 
-const DEMO_SMS_MESSAGES = [
-  {
-    sender: 'VM-SBIPAY',
-    preview: 'URGENT: Your SBI account has been temporarily suspended...',
-    full: 'URGENT: Your SBI account has been temporarily suspended due to unusual activity. Verify your identity immediately to restore access: http://sbi-secure-login.tk/verify?ref=7829 or your account will be permanently blocked in 24 hours.',
-    time: '2 min ago',
-    flagged: true
-  },
-  {
-    sender: '+91 9876543210',
-    preview: 'Congratulations! You have won ₹50,000 in the HDFC lucky draw...',
-    full: 'Congratulations! You have WON ₹50,000 in the HDFC Bank Lucky Draw 2024. Click to claim your prize before it expires: http://hdfc-prize-claim.xyz/winner?uid=KP2024 Do not share this link.',
-    time: '18 min ago',
-    flagged: true
-  },
-  {
-    sender: 'AD-SWIGGY',
-    preview: 'Your Swiggy order #4521 is out for delivery...',
-    full: 'Your Swiggy order #4521 is out for delivery. Track here: https://swiggy.com/track/4521. Expected arrival: 25 mins.',
-    time: '32 min ago',
-    flagged: false
-  },
-  {
-    sender: 'ID-INCOME',
-    preview: 'Income Tax Dept: Your PAN card is linked to suspicious transactions...',
-    full: 'Income Tax Department of India: Your PAN AN2344K is linked to suspicious cryptocurrency transactions. Verify your identity NOW to avoid arrest: http://incometax-verify.ga/pan?id=AN2344K Helpline: 1800-XXX-XXXX',
-    time: '1 hr ago',
-    flagged: true
-  }
-];
-
-// ---- Tab switching ----
-function switchSmsTab(tab) {
-  const panePaste  = document.getElementById('panePaste');
-  const paneInbox  = document.getElementById('paneInbox');
-  const tabPaste   = document.getElementById('tabPaste');
-  const tabInbox   = document.getElementById('tabInbox');
-
-  if (tab === 'paste') {
-    panePaste.style.display = 'block';
-    paneInbox.style.display = 'none';
-    tabPaste.style.background = 'rgba(124,58,237,0.25)';
-    tabPaste.style.color = '#a78bfa';
-    tabInbox.style.background = 'transparent';
-    tabInbox.style.color = 'var(--t3)';
-  } else {
-    panePaste.style.display = 'none';
-    paneInbox.style.display = 'block';
-    tabInbox.style.background = 'rgba(124,58,237,0.25)';
-    tabInbox.style.color = '#a78bfa';
-    tabPaste.style.background = 'transparent';
-    tabPaste.style.color = 'var(--t3)';
-    renderSmsInbox();
-  }
-}
-
 // ---- Extract all URLs from text ----
 function extractUrls(text) {
   const urlRegex = /https?:\/\/[^\s"'<>)]+|www\.[^\s"'<>)]+/gi;
@@ -275,7 +231,7 @@ function extractUrls(text) {
 function loadSmsDemo() {
   const smsInput = document.getElementById('smsInput');
   if (smsInput) {
-    smsInput.value = DEMO_SMS_MESSAGES[0].full;
+    smsInput.value = "URGENT: Your SBI account is suspended due to unusual activity. Please verify your KYC details immediately at: http://sbi-secure-login.tk/verify?id=7829 to avoid permanent block.";
     smsInput.focus();
     showToast('Demo SMS loaded — click Scan SMS Links!', 'info');
   }
@@ -358,6 +314,15 @@ function scanSmsText() {
       <div style="font-size:0.78rem;font-weight:700;color:var(--t3);margin-bottom:8px;letter-spacing:0.04em">LINKS FOUND IN MESSAGE (${urls.length})</div>
       ${cardsHtml}`;
 
+    // Create a risk alert in backend if any phishing detected
+    if (anyDanger) {
+      createBackendAlert({
+        type: 'critical',
+        title: 'Phishing Attempt Intercepted',
+        message: `Scanned an SMS containing ${urls.length} links. Phishing detected in the message content.`
+      });
+    }
+
     // Also add to history
     urls.forEach(url => {
       const a = FraudEngine ? FraudEngine.analyzeUrl(url) : { score: 50 };
@@ -367,56 +332,11 @@ function scanSmsText() {
   }, 1400);
 }
 
-// ---- Render Simulated SMS Inbox ----
-function renderSmsInbox() {
-  const list = document.getElementById('smsInboxList');
-  if (!list) return;
-  list.innerHTML = DEMO_SMS_MESSAGES.map((msg, i) => {
-    const dangerBg   = msg.flagged ? 'rgba(244,63,94,0.06)' : 'rgba(16,185,129,0.04)';
-    const dangerBord = msg.flagged ? 'rgba(244,63,94,0.15)' : 'rgba(16,185,129,0.12)';
-    const badge      = msg.flagged
-      ? `<span style="font-size:0.65rem;font-weight:800;color:var(--crimson-lt);background:rgba(244,63,94,0.12);border:1px solid rgba(244,63,94,0.25);padding:2px 8px;border-radius:99px;letter-spacing:0.05em">⚠ SUSPICIOUS</span>`
-      : `<span style="font-size:0.65rem;font-weight:800;color:var(--emerald-lt);background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);padding:2px 8px;border-radius:99px;letter-spacing:0.05em">✓ SAFE</span>`;
-    return `
-      <div style="padding:14px;background:${dangerBg};border:1px solid ${dangerBord};border-radius:12px;cursor:pointer" onclick="loadInboxSms(${i})">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-          <div style="width:32px;height:32px;border-radius:50%;background:rgba(124,58,237,0.15);display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:800;color:#a78bfa;flex-shrink:0">${msg.sender.substring(0,2).toUpperCase()}</div>
-          <div style="flex:1;min-width:0">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span style="font-size:0.82rem;font-weight:700;color:var(--t1)">${msg.sender}</span>
-              ${badge}
-              <span style="font-size:0.72rem;color:var(--t3);margin-left:auto">${msg.time}</span>
-            </div>
-            <div style="font-size:0.78rem;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px">${msg.preview}</div>
-          </div>
-        </div>
-        ${msg.flagged ? `<button onclick="event.stopPropagation();loadInboxSms(${i})" style="width:100%;padding:7px;border-radius:8px;border:1px solid rgba(244,63,94,0.25);background:rgba(244,63,94,0.08);color:var(--crimson-lt);font-size:0.76rem;font-weight:700;cursor:pointer;font-family:var(--fbody)">Scan This Message →</button>` : ''}
-      </div>`;
-  }).join('');
-}
-
-function loadInboxSms(index) {
-  const msg = DEMO_SMS_MESSAGES[index];
-  if (!msg) return;
-  // Switch to paste tab and load message
-  switchSmsTab('paste');
-  const smsInput = document.getElementById('smsInput');
-  if (smsInput) {
-    smsInput.value = msg.full;
-    document.getElementById('smsExtractResult').innerHTML = '';
-    showToast(`SMS from ${msg.sender} loaded — click Scan SMS Links!`, 'info');
-    smsInput.scrollIntoView({ behavior: 'smooth' });
-  }
-}
-
 // ============================================================
 //  Expose SMS functions to global scope for onclick attributes
 // ============================================================
-window.switchSmsTab  = switchSmsTab;
 window.scanSmsText   = scanSmsText;
 window.loadSmsDemo   = loadSmsDemo;
-window.loadInboxSms  = loadInboxSms;
-window.renderSmsInbox = renderSmsInbox;
 
 // ============================================================
 //  Init
