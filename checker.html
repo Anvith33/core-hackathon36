@@ -51,9 +51,9 @@
   </nav>
   <div class="sidebar-footer">
     <div class="sidebar-user">
-      <div class="user-avatar">AM</div>
+      <div class="user-avatar" id="sidebarAvatar">AM</div>
       <div>
-        <div class="user-name">Athul M R</div>
+        <div class="user-name" id="sidebarName">Athul M R</div>
         <div class="user-status"><span class="status-dot"></span> Protected</div>
       </div>
     </div>
@@ -92,12 +92,6 @@
         <div class="chip chip-violet" style="margin-left:auto;flex-shrink:0">NEW</div>
       </div>
 
-      <!-- Tab switcher -->
-      <div style="display:flex;gap:6px;margin-bottom:1.25rem;background:rgba(255,255,255,0.03);border-radius:10px;padding:4px">
-        <button id="tabPaste" onclick="switchSmsTab('paste')" style="flex:1;padding:8px;border-radius:8px;border:none;cursor:pointer;font-size:0.82rem;font-weight:700;background:rgba(124,58,237,0.25);color:#a78bfa;font-family:var(--fbody)">Paste SMS</button>
-        <button id="tabInbox" onclick="switchSmsTab('inbox')" style="flex:1;padding:8px;border-radius:8px;border:none;cursor:pointer;font-size:0.82rem;font-weight:700;background:transparent;color:var(--t3);font-family:var(--fbody)">Simulated Inbox</button>
-      </div>
-
       <!-- Paste SMS tab -->
       <div id="panePaste">
         <textarea id="smsInput" rows="4"
@@ -113,11 +107,6 @@
           </button>
         </div>
         <div id="smsExtractResult" style="margin-top:1rem"></div>
-      </div>
-
-      <!-- Simulated Inbox tab -->
-      <div id="paneInbox" style="display:none">
-        <div style="display:flex;flex-direction:column;gap:8px" id="smsInboxList"></div>
       </div>
     </div>
 
@@ -220,6 +209,7 @@
 <script src="js/app.js?v=2"></script>
 <script src="js/icons.js?v=2"></script>
 <script src="js/models.js?v=2"></script>
+<script src="js/auth.js?v=2"></script>
 <script src="js/fraud-engine.js?v=2"></script>
 <script src="js/checker.js?v=3"></script>
 <script>

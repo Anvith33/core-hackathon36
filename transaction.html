@@ -52,9 +52,9 @@
   </nav>
   <div class="sidebar-footer">
     <div class="sidebar-user">
-      <div class="user-avatar">AM</div>
+      <div class="user-avatar" id="sidebarAvatar">AM</div>
       <div>
-        <div class="user-name">Athul M R</div>
+        <div class="user-name" id="sidebarName">Athul M R</div>
         <div class="user-status"><span class="status-dot"></span> Protected</div>
       </div>
     </div>
@@ -243,15 +243,87 @@
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9 22,2"/></svg>
       Pay via UPI App
     </button>
-    <button onclick="closeModal('successModal'); window.location.href='dashboard.html'" class="btn btn-secondary" style="width:100%;margin-top:0.625rem;font-size:0.82rem;color:var(--t3)">Back to Dashboard</button>
+    <button onclick="closeModal('successModal'); window.location.href='dashboard.html?t=' + Date.now()" class="btn btn-secondary" style="width:100%;margin-top:0.625rem;font-size:0.82rem;color:var(--t3)">Back to Dashboard</button>
   </div>
 </div>
 
+
+<!-- UPI Checkout Mockup Modal -->
+<div class="modal-overlay" id="upiCheckoutModal">
+  <div class="modal-box upi-mock-box" style="padding:0; overflow:hidden; max-width:380px; border-radius:24px; background:#0f172a; border: 1px solid rgba(255,255,255,0.1)">
+    <div class="upi-mock-header" style="padding:1.5rem; display:flex; align-items:center; gap:16px; border-bottom:1px solid rgba(255,255,255,0.05)">
+      <div class="upi-mock-back" onclick="closeModal('upiCheckoutModal')" style="cursor:pointer; color:var(--t3)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      </div>
+      <div class="upi-mock-merchant" style="display:flex; align-items:center; gap:12px">
+        <div class="upi-mock-avatar" id="mockAvatar" style="width:40px; height:40px; background:var(--violet-lt); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; color:white; font-size:1.1rem">A</div>
+        <div class="upi-mock-merchant-info">
+          <div class="upi-mock-merchant-name" id="mockName" style="font-size:0.95rem; font-weight:700; color:var(--t1)">Recipient Name</div>
+          <div class="upi-mock-merchant-id" id="mockId" style="font-size:0.75rem; color:var(--t3)">recipient@upi</div>
+        </div>
+      </div>
+    </div>
+    <div class="upi-mock-body" style="padding:2.5rem 1.5rem; text-align:center">
+      <div class="upi-mock-amount-wrap" style="display:flex; align-items:center; justify-content:center; gap:4px">
+        <span class="upi-mock-currency" style="font-size:1.2rem; font-weight:700; color:var(--t2); margin-top:4px">₹</span>
+        <span class="upi-mock-amount" id="mockAmount" style="font-size:2.5rem; font-weight:800; color:var(--t1); letter-spacing:-0.02em">0.00</span>
+      </div>
+      <div class="upi-mock-divider" style="height:1px; background:rgba(255,255,255,0.05); margin:1.5rem 0"></div>
+      <div class="upi-mock-safe-banner" style="display:inline-flex; align-items:center; gap:8px; padding:6px 12px; background:rgba(16,185,129,0.1); border-radius:99px; font-size:0.7rem; color:var(--emerald-lt); font-weight:700">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Verified by FraudShield
+      </div>
+    </div>
+    <div class="upi-mock-footer" style="padding:1.5rem; background:rgba(255,255,255,0.02)">
+      <div class="upi-mock-card-selector" style="display:flex; align-items:center; justify-content:space-between; padding:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; margin-bottom:1.25rem">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:36px;height:24px;background:#1e293b;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.5rem;font-weight:900;color:#94a3b8">HDFC</div>
+          <div style="font-size:0.85rem;color:var(--t1)">HDFC Bank •••• 9921</div>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--t3)"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <button class="btn btn-primary" onclick="simulatePayment(this)" style="width:100%; padding:16px; border-radius:12px; font-size:1rem; background:#10b981!important; border:none; box-shadow: 0 4px 12px rgba(16,185,129,0.2)">
+        Pay ₹<span id="mockPayBtnVal">0</span>
+      </button>
+      <div style="margin-top:1.5rem;display:flex;justify-content:center;gap:16px">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" height="14" style="filter:grayscale(1) opacity(0.4)"/>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Loading/Success Overlay -->
+<div class="modal-overlay" id="paymentOverlay" style="z-index: 10001; background: rgba(10, 10, 20, 0.98); backdrop-filter: blur(20px);">
+  <div style="text-align: center; width: 100%; max-width: 400px;">
+    <div id="paymentLoader" style="margin: 0 auto;">
+      <div class="loader-ring" style="width: 70px; height: 70px; border: 5px solid rgba(255,255,255,0.05); border-top-color: var(--emerald-lt); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 2rem;"></div>
+      <h3 style="font-family: var(--fhead); font-size: 1.4rem; color: var(--t1); margin-bottom: 8px;">Processing Payment</h3>
+      <p style="color: var(--t3); font-size: 0.9rem;">Verifying secure tunnel with your bank...</p>
+    </div>
+    
+    <div id="paymentSuccessAnim" style="display: none;">
+       <div class="success-checkmark" style="width: 100px; height: 100px; margin: 0 auto 2rem;">
+          <div class="check-icon" style="width: 100%; height: 100%; border-radius: 50%; border: 4px solid var(--emerald-lt); display: flex; align-items: center; justify-content: center;">
+             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--emerald-lt)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 8px rgba(16,185,129,0.4))"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+        </div>
+       <h2 style="font-family: var(--fhead); font-size: 1.8rem; color: var(--t1); margin-bottom: 8px;">Payment Successful</h2>
+       <p style="color: var(--t3); font-size: 1rem;" id="finalSuccessMsg">Sent safely to Recipient</p>
+       <button class="btn btn-primary" onclick="window.location.href='dashboard.html?t=' + Date.now()" style="margin-top: 2.5rem; padding: 14px 48px; border-radius: 14px; box-shadow: 0 10px 20px rgba(16,185,129,0.2)">Done</button>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+.loader-ring { display: block; }
+</style>
 
 <script src="js/app.js"></script>
 <script src="js/icons.js"></script>
 <script src="js/models.js"></script>
 <script src="js/fraud-engine.js"></script>
+<script src="js/auth.js"></script>
 <script src="js/transaction.js"></script>
 </body>
 </html>

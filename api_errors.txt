@@ -1,0 +1,3 @@
+2026-04-25 22:29:03.739733: table transactions has no column named recipient_name
+2026-04-25 22:35:55.550383: table transactions has no column named recipient_name
+2026-04-25 22:39:39.589437: table transactions has no column named recipient_name

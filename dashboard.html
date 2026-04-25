@@ -131,7 +131,7 @@
               <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
               <path d="M13.73 21a2 2 0 01-3.46 0" />
             </svg>
-            <span class="badge" id="notifBadge">3</span>
+            <span class="badge" id="notifBadge" style="display:none">0</span>
           </button>
         </div>
       </header>
@@ -150,15 +150,7 @@
               Your Safety Score
             </div>
             <div class="score-number" id="safetyScore">0<span class="score-max">/100</span></div>
-            <div class="score-level" id="safetyLevel">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-                <line x1="12" y1="9" x2="12" y2="13" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-              Loading…
-            </div>
+            <div class="score-level" id="safetyLevel"><span style="color:var(--t3)">Loading…</span></div>
             <p class="score-tip" id="safetyTip">Calculating your risk profile…</p>
             <div class="score-actions">
               <a href="learn.html" class="btn btn-primary">
@@ -200,17 +192,12 @@
                   <polyline points="9,12 11,14 15,10" />
                 </svg>
               </div>
-              <span class="chip chip-crimson">Active</span>
+              <span class="chip chip-crimson" id="statBlockedStatus">Active</span>
             </div>
             <div class="stat-value" id="statBlockedVal">0</div>
             <div class="stat-label">Threats Blocked</div>
-            <div class="stat-trend trend-dn">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="23,6 13.5,15.5 8.5,10.5 1,18" />
-                <polyline points="17,6 23,6 23,12" />
-              </svg>
-              +3 today
+            <div class="stat-trend" id="statBlockedTrend" style="visibility:hidden">
+              Real-time tracking
             </div>
           </div>
           <div class="glass-card stat-card">
@@ -222,42 +209,13 @@
                   <line x1="6" y1="9" x2="18" y2="9" />
                   <line x1="9" y1="4" x2="15" y2="20" />
                 </svg>
-
               </div>
-              <span class="chip chip-emerald">Good</span>
+              <span class="chip chip-emerald" id="statSavedStatus">Protected</span>
             </div>
-            <div class="stat-value">₹<span id="statSavedVal">47,500</span></div>
+            <div class="stat-value">₹<span id="statSavedVal">0</span></div>
             <div class="stat-label">Money Saved</div>
-            <div class="stat-trend trend-up">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="23,6 13.5,15.5 8.5,10.5 1,18" />
-                <polyline points="17,6 23,6 23,12" />
-              </svg>
-              +₹15K this week
-            </div>
-          </div>
-          <div class="glass-card stat-card">
-            <div class="stat-card-top">
-              <div class="stat-icon si-amber">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                  <path d="M13.73 21a2 2 0 01-3.46 0" />
-                </svg>
-              </div>
-              <span class="chip chip-amber">Needs attention</span>
-            </div>
-            <div class="stat-value" id="statAlertsVal">0</div>
-            <div class="stat-label">Active Alerts</div>
-            <div class="stat-trend trend-warn">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
-              Review now
+            <div class="stat-trend" id="statSavedTrend" style="visibility:hidden">
+              Protection active
             </div>
           </div>
           <div class="glass-card stat-card">
@@ -269,17 +227,12 @@
                   <line x1="1" y1="10" x2="23" y2="10" />
                 </svg>
               </div>
-              <span class="chip chip-violet">Safe</span>
+              <span class="chip chip-violet" id="statTxnStatus">Secure</span>
             </div>
             <div class="stat-value" id="statTxnVal">0</div>
             <div class="stat-label">Safe Transactions</div>
-            <div class="stat-trend trend-up">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="23,6 13.5,15.5 8.5,10.5 1,18" />
-                <polyline points="17,6 23,6 23,12" />
-              </svg>
-              This month
+            <div class="stat-trend" id="statTxnTrend" style="visibility:hidden">
+              Verified sessions
             </div>
           </div>
         </div>
@@ -397,7 +350,6 @@
               </div>
             </div>
           </div>
-        </div>
 
         <!-- Transactions + Alerts Two-col -->
         <div class="two-col-asym anim-up d3">
@@ -439,24 +391,7 @@
           </div>
         </div>
 
-        <!-- Threat Radar -->
-        <div class="glass-card col-card anim-up d4">
-          <div class="section-head">
-            <h2>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
-                stroke-linecap="round" stroke-linejoin="round" class="icon">
-                <path d="M12 2a10 10 0 100 20A10 10 0 0012 2z" />
-                <path d="M12 6a6 6 0 100 12A6 6 0 0012 6z" />
-                <circle cx="12" cy="12" r="2" />
-              </svg>
-              Threat Radar
-            </h2>
-            <span class="chip chip-violet">Last 30 days</span>
-          </div>
-          <div class="radar-grid" id="radarGrid">
-            <!-- Populated by JS -->
-          </div>
-        </div>
+
 
       </div><!-- /.page-body -->
     </main>
@@ -483,7 +418,73 @@
   <script src="js/icons.js"></script>
   <script src="js/models.js"></script>
   <script src="js/fraud-engine.js"></script>
-  <script src="js/dashboard.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/dashboard.js?v=3.2"></script>
+  <script>
+    // Bootstrap: runs AFTER all scripts are parsed — no DOMContentLoaded race
+    (function initDashboard() {
+      const SESSION_KEY = 'fraudshield_session';
+      let user = null;
+      try { user = JSON.parse(localStorage.getItem(SESSION_KEY)); } catch(e) {}
+      if (!user || !user.id) {
+        console.warn('Dashboard bootstrap: no session found.');
+        return;
+      }
+      console.log('Dashboard bootstrap: user', user.fullName, 'id', user.id);
+      const API = 'http://localhost:5001/api';
+
+      function safeEl(id) { return document.getElementById(id); }
+
+      function updateScore(score) {
+        const s = Math.round(score);
+        const el = safeEl('safetyScore');
+        if (el) el.innerHTML = s + '<span class="score-max">/100</span>';
+        const rl = safeEl('ringScorelabel');
+        if (rl) rl.textContent = s + '%';
+        const circle = safeEl('scoreRingCircle');
+        if (circle) {
+          const c = 2 * Math.PI * 56;
+          circle.style.transition = 'stroke-dashoffset 1.4s ease';
+          circle.setAttribute('stroke-dashoffset', c - (c * s / 100));
+        }
+        const lv = safeEl('safetyLevel');
+        const tp = safeEl('safetyTip');
+        if (lv) {
+          if (s >= 80) {
+            lv.innerHTML = '<span style="color:var(--emerald-lt)">Ironclad Security</span>';
+            if (tp) tp.textContent = 'Your account is extremely secure. Keep it up!';
+          } else if (s >= 40) {
+            lv.innerHTML = '<span style="color:var(--amber-lt)">Moderate Protection</span>';
+            if (tp) tp.textContent = 'Complete more lessons to improve your score.';
+          } else {
+            lv.innerHTML = '<span style="color:var(--crimson-lt)">High Risk Profile</span>';
+            if (tp) tp.textContent = 'Take immediate action to secure your account.';
+          }
+        }
+      }
+
+      function loadStats() {
+        fetch(API + '/user/stats?user_id=' + user.id + '&cb=' + Date.now())
+          .then(r => r.json())
+          .then(d => {
+            updateScore(d.safetyScore || 0);
+            if (typeof animateCount === 'function') {
+              animateCount(safeEl('statSavedVal'),   d.moneySaved    || 0);
+              animateCount(safeEl('statTxnVal'),     d.txnsProtected || 0);
+              animateCount(safeEl('statBlockedVal'), d.scannedTotal  || 0);
+            }
+            const badge = safeEl('alertBadge');
+            if (badge) { badge.textContent = d.scannedTotal || 0; badge.style.display = (d.scannedTotal > 0) ? 'flex' : 'none'; }
+          })
+          .catch(e => { console.error('Stats load failed:', e); });
+      }
+
+      // Run immediately (DOM is ready since this is at bottom of body)
+      loadStats();
+      // Also re-run every 30 s for live monitoring
+      setInterval(loadStats, 30000);
+    })();
+  </script>
 </body>
 
 </html>

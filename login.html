@@ -6,168 +6,109 @@
   <title>Login – FraudShield</title>
   <link rel="stylesheet" href="styles/main.css">
   <style>
-    body {
-      background: radial-gradient(circle at 50% 0%, #1a1c2c 0%, #050812 100%);
-      display: flex; align-items: center; justify-content: center; min-height: 100vh;
-      margin: 0;
-    }
-    
-    .auth-glow {
-      position: absolute; width: 600px; height: 600px;
-      background: radial-gradient(circle, rgba(124, 58, 237, 0.12) 0%, transparent 70%);
-      top: -200px; z-index: -1;
-    }
-
-    .auth-container {
-      width: 100%; max-width: 440px; padding: 3rem;
-      background: rgba(13, 17, 34, 0.6);
-      backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 32px;
-      box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.6);
-      animation: authIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    @keyframes authIn { from { opacity: 0; transform: translateY(40px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-
-    .logo-badge {
-      width: 60px; height: 60px; background: var(--g-brand); border-radius: 18px;
-      display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;
-      box-shadow: 0 10px 25px rgba(124, 58, 237, 0.4), inset 0 2px rgba(255,255,255,0.3);
-    }
-    
-    .auth-title { font-family: var(--fhead); font-size: 2rem; font-weight: 800; text-align: center; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
-    .auth-subtitle { color: var(--t3); text-align: center; margin-bottom: 2.5rem; font-size: 0.95rem; }
-
-    .form-label { display: block; font-size: 0.75rem; font-weight: 800; color: var(--t3); text-transform: uppercase; margin-bottom: 0.75rem; letter-spacing: 0.08em; }
-    
-    .input-wrap { position: relative; margin-bottom: 1.5rem; }
-    .auth-input {
-      width: 100%; padding: 16px; background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px;
-      font-size: 1rem; color: #fff; transition: 0.3s;
-    }
-    .auth-input:focus {
-      outline: none; background: rgba(255, 255, 255, 0.07);
-      border-color: var(--violet); box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15);
-    }
-
-    .btn-auth {
-      width: 100%; padding: 18px; background: var(--g-brand); border: none; border-radius: 16px;
-      color: #fff; font-size: 1rem; font-weight: 800; font-family: var(--fhead);
-      cursor: pointer; transition: 0.3s; margin-top: 1rem;
-      box-shadow: 0 15px 30px -5px rgba(124, 58, 237, 0.4);
-    }
-    .btn-auth:hover { transform: translateY(-3px); box-shadow: 0 25px 40px -10px rgba(124, 58, 237, 0.5); }
-
-    .switch-auth { text-align: center; margin-top: 2rem; font-size: 0.9rem; color: var(--t3); }
-    .switch-link { color: var(--violet-lt); text-decoration: none; font-weight: 700; cursor: pointer; transition: 0.2s; }
-    .switch-link:hover { color: #fff; }
-
+    body { background: radial-gradient(circle at 50% 0%, #1a1c2c 0%, #050812 100%); display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 1rem; box-sizing: border-box; }
+    .auth-glow { position: fixed; width: 700px; height: 700px; background: radial-gradient(circle, rgba(124,58,237,0.14) 0%, transparent 70%); top: -200px; left: 50%; transform: translateX(-50%); z-index: -1; animation: gDrift 12s ease-in-out infinite alternate; }
+    @keyframes gDrift { from{transform:translateX(-55%)} to{transform:translateX(-45%)} }
+    .auth-container { width: 100%; max-width: 440px; padding: 2.5rem; background: rgba(13,17,34,0.7); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); border: 1px solid rgba(255,255,255,0.08); border-radius: 28px; box-shadow: 0 40px 100px -20px rgba(0,0,0,0.7); animation: authIn 0.7s cubic-bezier(0.16,1,0.3,1); }
+    @keyframes authIn { from{opacity:0;transform:translateY(30px) scale(0.96)} to{opacity:1;transform:none} }
+    .logo-badge { width: 56px; height: 56px; background: var(--g-brand); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; box-shadow: 0 10px 25px rgba(124,58,237,0.45); }
+    .auth-tabs { display: flex; gap: 4px; background: rgba(255,255,255,0.04); border-radius: 12px; padding: 4px; margin-bottom: 2rem; }
+    .auth-tab { flex: 1; padding: 10px; border-radius: 9px; border: none; cursor: pointer; font-size: 0.875rem; font-weight: 700; transition: all 0.25s; font-family: var(--fbody); color: var(--t3); }
+    .auth-tab.active { background: var(--g-brand); color: #fff; box-shadow: 0 4px 15px rgba(124,58,237,0.35); }
+    .auth-title { font-family: var(--fhead); font-size: 1.75rem; font-weight: 800; text-align: center; margin-bottom: 0.4rem; letter-spacing: -0.02em; }
+    .auth-subtitle { color: var(--t3); text-align: center; margin-bottom: 2rem; font-size: 0.875rem; }
+    .form-label { display: block; font-size: 0.72rem; font-weight: 800; color: var(--t3); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.08em; }
+    .input-wrap { position: relative; margin-bottom: 1.25rem; }
+    .auth-input { width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); border-radius: 12px; font-size: 0.95rem; color: #fff; transition: all 0.25s; box-sizing: border-box; font-family: var(--fbody); }
+    .btn-auth { width: 100%; padding: 16px; background: var(--g-brand); border: none; border-radius: 14px; color: #fff; font-size: 0.975rem; font-weight: 800; font-family: var(--fhead); cursor: pointer; transition: 0.25s; margin-top: 0.5rem; box-shadow: 0 12px 28px -5px rgba(124,58,237,0.45); display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .global-error { padding: 12px 14px; background: rgba(244,63,94,0.08); border: 1px solid rgba(244,63,94,0.2); border-radius: 10px; color: #f87171; font-size: 0.82rem; font-weight: 600; margin-bottom: 1.25rem; display: none; }
+    .global-error.show { display: block; }
+    .back-link { display: block; text-align: center; font-size: 0.82rem; color: var(--t3); text-decoration: none; margin-top: 1.25rem; }
+    #panelLogin, #panelSignup { display: none; }
+    #panelLogin.active, #panelSignup.active { display: block; }
+    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
   </style>
 </head>
 <body>
   <div class="auth-glow"></div>
   <div class="auth-container">
     <div class="logo-badge">
-       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 6.5v5.5C3 17.5 7 22 12 23c5-1 9-5.5 9-11V6.5L12 2z"/><polyline points="9,12 11,14 15,10"/></svg>
+       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 6.5v5.5C3 17.5 7 22 12 23c5-1 9-5.5 9-11V6.5L12 2z"/><polyline points="9,12 11,14 15,10"/></svg>
     </div>
-    
-    <h1 class="auth-title">Welcome</h1>
-    <p class="auth-subtitle">Secure your digital financial journey</p>
-
-    <form id="authForm">
-      <div>
-        <label class="form-label">Full Name</label>
-        <div class="input-wrap">
-          <input type="text" id="fullname" class="auth-input" placeholder="Rahul Kumar" required>
-        </div>
-      </div>
-      <div>
-        <label class="form-label">Email Address</label>
-        <div class="input-wrap">
-          <input type="email" id="email" class="auth-input" placeholder="rahul@example.com" required>
-        </div>
-      </div>
-      <div>
-        <label class="form-label">Create Password</label>
-        <div class="input-wrap">
-          <input type="password" id="password" class="auth-input" placeholder="••••••••" required>
-        </div>
-      </div>
-
-      <button type="submit" class="btn-auth" id="submitBtn">Create Account</button>
-    </form>
-
-    <div class="switch-auth">
-      Already have an account? <span class="switch-link" onclick="toggleAuth()">Sign In</span>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin" onclick="switchTab('login')">Sign In</button>
+      <button class="auth-tab" id="tabSignup" onclick="switchTab('signup')">Create Account</button>
     </div>
+    <div class="global-error" id="globalError"></div>
+    <div id="panelLogin" class="active">
+      <h1 class="auth-title">Welcome Back</h1>
+      <p class="auth-subtitle">Sign in to your protected dashboard</p>
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="input-wrap">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="loginEmail" class="auth-input" placeholder="you@example.com" required autocomplete="email">
+        </div>
+        <div class="input-wrap">
+          <label class="form-label">Password</label>
+          <input type="password" id="loginPassword" class="auth-input" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn-auth" id="loginBtn">Sign In Securely</button>
+      </form>
+    </div>
+    <div id="panelSignup">
+      <h1 class="auth-title">Get Protected</h1>
+      <p class="auth-subtitle">Create your free FraudShield account</p>
+      <form id="signupForm" onsubmit="handleSignup(event)">
+        <div class="input-wrap">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="signupName" class="auth-input" placeholder="Rahul Kumar" required autocomplete="name">
+        </div>
+        <div class="input-wrap">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="signupEmail" class="auth-input" placeholder="you@example.com" required autocomplete="email">
+        </div>
+        <div class="input-wrap">
+          <label class="form-label">Create Password</label>
+          <input type="password" id="signupPassword" class="auth-input" placeholder="Min. 6 characters" required autocomplete="new-password">
+        </div>
+        <button type="submit" class="btn-auth" id="signupBtn">Create My Account</button>
+      </form>
+    </div>
+    <a href="index.html" class="back-link">← Back to homepage</a>
   </div>
-
   <script src="js/app.js"></script>
+  <script src="js/auth.js"></script>
   <script>
-    let isLogin = false;
-    const authForm = document.getElementById('authForm');
-    const authTitle = document.querySelector('.auth-title');
-    const authSubtitle = document.querySelector('.auth-subtitle');
-    const submitBtn = document.getElementById('submitBtn');
-    const switchAuth = document.querySelector('.switch-auth');
-    const nameField = document.getElementById('fullname').parentElement.parentElement;
-
-    function toggleAuth() {
-      isLogin = !isLogin;
-      if (isLogin) {
-        authTitle.innerText = "Welcome Back";
-        authSubtitle.innerText = "Sign in to your protected dashboard";
-        submitBtn.innerText = "Sign In";
-        switchAuth.innerHTML = `Don't have an account? <span class="switch-link" onclick="toggleAuth()">Create Account</span>`;
-        nameField.style.display = 'none';
-      } else {
-        authTitle.innerText = "Create Account";
-        authSubtitle.innerText = "Your personal AI guard for UPI & Payments";
-        submitBtn.innerText = "Create Account";
-        switchAuth.innerHTML = `Already have an account? <span class="switch-link" onclick="toggleAuth()">Sign In</span>`;
-        nameField.style.display = 'block';
-      }
+    if (getSession()) window.location.href = 'dashboard.html';
+    function switchTab(tab) {
+      document.getElementById('panelLogin').classList.toggle('active', tab === 'login');
+      document.getElementById('panelSignup').classList.toggle('active', tab === 'signup');
+      document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+      document.getElementById('tabSignup').classList.toggle('active', tab === 'signup');
     }
-
-    authForm.onsubmit = async (e) => {
+    function showError(msg) {
+      const el = document.getElementById('globalError');
+      el.textContent = msg; el.classList.add('show');
+    }
+    async function handleLogin(e) {
       e.preventDefault();
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const fullname = document.getElementById('fullname').value;
-
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-      const body = { username: email, password, fullName: fullname };
-
-      submitBtn.innerText = isLogin ? "Signing in..." : "Creating account...";
-      submitBtn.disabled = true;
-
-      try {
-        const res = await fetch(`http://127.0.0.1:5001${endpoint}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
-        });
-        const data = await res.json();
-
-        if (data.success) {
-          if (isLogin) {
-            localStorage.setItem('fraudshield_user', JSON.stringify(data.user));
-            window.location.href = 'dashboard.html';
-          } else {
-            showToast('Account Created! Please Sign In.', 'success');
-            toggleAuth();
-          }
-        } else {
-          showToast(data.message, 'danger');
-        }
-      } catch (err) {
-        showToast('Backend Error: Make sure Python server is running.', 'danger');
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerText = isLogin ? "Sign In" : "Create Account";
-      }
-    };
+      const email = document.getElementById('loginEmail').value;
+      const pass  = document.getElementById('loginPassword').value;
+      const result = await authLogin(email, pass);
+      if (result.success) window.location.href = 'dashboard.html';
+      else showError(result.message);
+    }
+    async function handleSignup(e) {
+      e.preventDefault();
+      const name  = document.getElementById('signupName').value;
+      const email = document.getElementById('signupEmail').value;
+      const pass  = document.getElementById('signupPassword').value;
+      const result = await authRegister(name, email, pass);
+      if (result.success) {
+        await authLogin(email, pass);
+        window.location.href = 'dashboard.html';
+      } else showError(result.message);
+    }
   </script>
 </body>
 </html>
