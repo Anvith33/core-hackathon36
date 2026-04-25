@@ -1,0 +1,163 @@
+/* ====================================================
+   FraudShield – checker.css
+   ==================================================== */
+
+.checker-hero { padding: 2rem; }
+.checker-hero-text { margin-bottom: 2rem; }
+.checker-hero-text h2 { font-family: var(--font-head); font-size: 1.4rem; font-weight: 700; margin-bottom: 0.6rem; }
+.checker-hero-text p { font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6; }
+
+.url-input-group { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.url-input-wrap {
+  flex: 1; min-width: 280px;
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 6px 6px 6px 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.url-input-wrap:focus-within { border-color: var(--accent-indigo); box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+.url-icon { font-size: 1.1rem; color: var(--text-muted); flex-shrink: 0; }
+#urlInput {
+  flex: 1; background: none; border: none;
+  color: var(--text-primary); font-size: 0.95rem; outline: none;
+  font-family: var(--font-main);
+  padding: 0;
+}
+#urlInput::placeholder { color: var(--text-muted); }
+.url-clear {
+  background: none; border: none;
+  color: var(--text-muted); cursor: pointer;
+  font-size: 0.85rem; padding: 6px 10px; border-radius: var(--radius-sm);
+  transition: color 0.2s;
+}
+.url-clear:hover { color: var(--text-primary); }
+
+.btn-check-url {
+  padding: 12px 28px;
+  background: var(--grad-primary); color: white;
+  border: none; border-radius: var(--radius-md);
+  font-size: 0.95rem; font-weight: 700;
+  cursor: pointer; font-family: var(--font-main);
+  transition: all 0.2s; white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(99,102,241,0.35);
+}
+.btn-check-url:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(99,102,241,0.5); }
+
+/* ---- URL Scanning Animation ---- */
+.scanning-anim {
+  padding: 2rem; text-align: center;
+}
+.scan-bars {
+  display: flex; justify-content: center; align-items: flex-end; gap: 4px; height: 40px; margin-bottom: 1rem;
+}
+.scan-bar {
+  width: 6px; border-radius: 99px;
+  background: var(--accent-indigo);
+  animation: bar-bounce 0.8s ease-in-out infinite;
+}
+.scan-bar:nth-child(2) { animation-delay: 0.1s; background: var(--accent-cyan); }
+.scan-bar:nth-child(3) { animation-delay: 0.2s; }
+.scan-bar:nth-child(4) { animation-delay: 0.3s; background: var(--accent-cyan); }
+.scan-bar:nth-child(5) { animation-delay: 0.4s; }
+@keyframes bar-bounce {
+  0%, 100% { height: 10px; opacity: 0.5; }
+  50% { height: 38px; opacity: 1; }
+}
+
+/* ---- Result Area ---- */
+.url-result { margin-top: 1.5rem; }
+
+.result-header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+}
+.result-header.safe    { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); }
+.result-header.danger  { background: rgba(244,63,94,0.1); border: 1px solid rgba(244,63,94,0.25); }
+.result-header.warning { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); }
+
+.result-icon { font-size: 2.5rem; }
+.result-title { font-family: var(--font-head); font-size: 1.2rem; font-weight: 800; }
+.result-subtitle { font-size: 0.88rem; color: var(--text-secondary); margin-top: 3px; }
+
+.result-details {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem; margin-bottom: 1rem;
+}
+.result-detail-item {
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border-glass);
+}
+.rd-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 6px; }
+.rd-value { font-size: 0.88rem; font-weight: 600; color: var(--text-primary); }
+.rd-value.ok      { color: var(--accent-emerald); }
+.rd-value.bad     { color: var(--accent-rose); }
+.rd-value.neutral { color: var(--text-secondary); }
+
+.result-action {
+  display: flex; gap: 0.75rem; flex-wrap: wrap;
+}
+.btn-result-primary {
+  padding: 11px 24px; border-radius: 99px;
+  font-size: 0.88rem; font-weight: 700; cursor: pointer;
+  border: none; font-family: var(--font-main); transition: all 0.2s;
+}
+.btn-result-ghost {
+  padding: 11px 24px; border-radius: 99px;
+  font-size: 0.88rem; font-weight: 600; cursor: pointer;
+  background: transparent; font-family: var(--font-main); transition: all 0.2s;
+  border: 1px solid var(--border-glass); color: var(--text-secondary);
+}
+.btn-result-ghost:hover { color: var(--text-primary); border-color: rgba(255,255,255,0.2); }
+
+/* ---- Analysis Card ---- */
+.analysis-card { padding: 1.5rem; }
+.analysis-card h2 { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; margin-bottom: 1.25rem; }
+.analysis-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+.analysis-item {
+  padding: 1.25rem; border-radius: var(--radius-md);
+  background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass);
+}
+.ai-label { font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.5rem; }
+.ai-value { font-size: 0.95rem; font-weight: 700; }
+.ai-bar-wrap { height: 4px; background: rgba(255,255,255,0.07); border-radius: 99px; margin-top: 8px; overflow: hidden; }
+.ai-bar { height: 100%; border-radius: 99px; }
+
+/* ---- Recent Checks ---- */
+.recent-checks { padding: 1.5rem; }
+.recent-checks-list { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem; }
+.recent-check-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; border-radius: var(--radius-md);
+  background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass);
+  cursor: pointer; transition: all 0.2s;
+}
+.recent-check-item:hover { background: rgba(255,255,255,0.05); }
+.rc-icon { font-size: 1.1rem; flex-shrink: 0; }
+.rc-url { font-size: 0.85rem; color: var(--text-secondary); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rc-status { font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; flex-shrink: 0; }
+.rc-safe    { color: var(--accent-emerald); background: rgba(16,185,129,0.1); }
+.rc-danger  { color: var(--accent-rose); background: rgba(244,63,94,0.1); }
+.rc-warning { color: var(--accent-amber); background: rgba(245,158,11,0.1); }
+.rc-time { font-size: 0.7rem; color: var(--text-muted); margin-left: auto; flex-shrink: 0; }
+
+.empty-state { text-align: center; color: var(--text-muted); font-size: 0.88rem; padding: 2rem; }
+
+/* ---- Phishing Patterns / Flags ---- */
+.phishing-patterns { padding: 1.5rem; }
+.phishing-patterns h2 { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; margin-bottom: 1.25rem; }
+.flags-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+.flag-item {
+  padding: 1.25rem; border-radius: var(--radius-md);
+  background: rgba(244,63,94,0.04); border: 1px solid rgba(244,63,94,0.12);
+  transition: all 0.2s;
+}
+.flag-item:hover { background: rgba(244,63,94,0.08); transform: translateY(-2px); }
+.flag-icon { font-size: 1.6rem; margin-bottom: 0.75rem; }
+.flag-item h4 { font-family: var(--font-head); font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem; }
+.flag-item p { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5; }

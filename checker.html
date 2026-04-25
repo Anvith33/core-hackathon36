@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>URL Phishing Checker – FraudShield</title>
+  <meta name="description" content="Check any suspicious link for phishing, malware, and fake banking sites before you click."/>
+  <link rel="stylesheet" href="styles/main.css"/>
+  <link rel="stylesheet" href="styles/dashboard.css"/>
+</head>
+<body>
+<div class="app-body">
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <a href="index.html" class="sidebar-logo">
+      <div class="logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 6.5v5.5C3 17.5 7 22 12 23c5-1 9-5.5 9-11V6.5L12 2z"/><polyline points="9,12 11,14 15,10"/></svg>
+      </div>
+      <span class="logo-text">FraudShield</span>
+    </a>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a href="dashboard.html" class="nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+      Dashboard
+    </a>
+    <a href="transaction.html" class="nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9 22,2"/></svg>
+      Send Money
+    </a>
+    <a href="alerts.html" class="nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      Alerts
+    </a>
+    <div class="nav-section-label">Tools</div>
+    <a href="learn.html" class="nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+      Learn &amp; Protect
+    </a>
+    <a href="checker.html" class="nav-item active">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      URL Checker
+    </a>
+    <a href="report.html" class="nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Report Fraud
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="user-avatar">RK</div>
+      <div>
+        <div class="user-name">Rahul Kumar</div>
+        <div class="user-status"><span class="status-dot"></span> Protected</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<main class="main-content">
+  <header class="topbar">
+    <button class="menu-toggle" onclick="toggleSidebar()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="topbar-title">
+      <h1>Phishing URL Checker</h1>
+      <span>Check any link before you click it</span>
+    </div>
+    <div class="topbar-end">
+      <div class="live-pill">
+        <span class="live-dot"></span>
+        AI Active
+      </div>
+    </div>
+  </header>
+
+  <div class="page-body">
+
+    <!-- Scan Input -->
+    <div class="glass-card url-scan-card anim-up">
+      <div style="margin-bottom:1.5rem">
+        <h2 style="font-family:var(--fhead);font-size:1.15rem;font-weight:800;color:var(--t1);margin-bottom:6px">Is this link safe?</h2>
+        <p style="font-size:0.85rem;color:var(--t3);line-height:1.5">Paste any suspicious URL, SMS link, or website address. Our AI scans it instantly for phishing, malware, and fake banking sites.</p>
+      </div>
+      <div class="url-input-wrap">
+        <div class="url-field-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="url-input-icon"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+          <input type="url" id="urlInput" class="form-input" placeholder="Paste URL here... e.g. https://sbi-login-verify.com" oninput="onUrlInput()"/>
+          <button class="url-clear-btn" id="urlClearBtn" onclick="clearUrl()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <button class="btn btn-primary" id="scanBtn" onclick="startScan()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Scan Link
+        </button>
+      </div>
+
+      <!-- Scanning Animation -->
+      <div id="scanningAnim" style="display:none;align-items:center;gap:12px;margin-top:1.25rem;padding:1rem;background:rgba(124,58,237,0.06);border:1px solid rgba(124,58,237,0.15);border-radius:var(--r-md)">
+        <div class="scan-anim">
+          <div class="scan-bar"></div><div class="scan-bar"></div>
+          <div class="scan-bar"></div><div class="scan-bar"></div><div class="scan-bar"></div>
+        </div>
+        <span style="font-size:0.85rem;color:var(--violet-lt);font-weight:600">Analyzing link patterns, domain reputation, and SSL validity…</span>
+      </div>
+
+      <!-- Result -->
+      <div id="urlResult" style="margin-top:1.25rem"></div>
+    </div>
+
+    <!-- Two-col: Recent Checks + Red Flags -->
+    <div class="two-col anim-up">
+      <!-- Recent Checks -->
+      <div class="glass-card col-card">
+        <div class="section-head">
+          <h2>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><polyline points="3,9 21,9"/><polyline points="3,15 21,15"/><polyline points="9,3 9,21"/><polyline points="15,3 15,21"/></svg>
+            Recent Checks
+          </h2>
+          <button class="btn-outline" onclick="clearHistory()">Clear All</button>
+        </div>
+        <div id="recentChecksList" style="display:flex;flex-direction:column;gap:2px">
+          <div style="text-align:center;padding:2rem;color:var(--t3);font-size:0.85rem">
+            No URLs checked yet. Paste one above!
+          </div>
+        </div>
+      </div>
+
+      <!-- Red Flags to Watch -->
+      <div class="glass-card col-card">
+        <div class="section-head">
+          <h2>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+            Red Flags to Watch
+          </h2>
+        </div>
+        <div class="flag-cards" style="grid-template-columns:1fr;gap:0.75rem">
+          <div class="flag-card">
+            <div class="flag-icon fi-crimson">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+            </div>
+            <div class="flag-title">Suspicious Domain Extensions</div>
+            <div class="flag-desc">Scam sites use .tk, .ml, .xyz, .ga instead of .com or .in. Real banks never use these.</div>
+          </div>
+          <div class="flag-card">
+            <div class="flag-icon fi-amber">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            </div>
+            <div class="flag-title">Missing HTTPS Padlock</div>
+            <div class="flag-desc">No padlock in the address bar means the site is not secure. Never enter your password.</div>
+          </div>
+          <div class="flag-card">
+            <div class="flag-icon fi-violet">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+            </div>
+            <div class="flag-title">Misspelled Bank Names</div>
+            <div class="flag-desc">Scammers use sbi-secure.com or st4tebank.com. Always check spelling character by character.</div>
+          </div>
+          <div class="flag-card">
+            <div class="flag-icon fi-sky">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+            </div>
+            <div class="flag-title">Urgency + Reward Language</div>
+            <div class="flag-desc">"Claim your prize now!" or "Your account will be blocked!" — these are manipulation tactics.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+</div>
+
+<script src="js/app.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/models.js"></script>
+<script src="js/fraud-engine.js"></script>
+<script src="js/checker.js"></script>
+</body>
+</html>
